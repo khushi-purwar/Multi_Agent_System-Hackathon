@@ -1,0 +1,25 @@
+# Core
+pandas
+sqlite-utils
+
+# LLM + Embedding (Local Ollama Support)
+ollama
+
+# Optional but useful
+tqdm
+python-dotenv
+requests
+
+# to use embeddings or LangChain-style pipelines
+sentence-transformers
+langchain
+faiss-cpu  # Vector store backend
+
+# For safe date/time parsing (if needed later)
+python-dateutil
+
+## color enhancement
+rich
+
+## Text to speech
+pyttsx3
