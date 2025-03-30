@@ -1,21 +1,38 @@
-from agents.base_agent import BaseAgent
 import sqlite3
+from datetime import datetime
+from .base_agent import BaseAgent
 
 class HealthAgent(BaseAgent):
-    def process(self, row):
-        alert = "No"
-        if row['Heart Rate Below/Above Threshold (Yes/No)'] == 'Yes':
-            alert = "Yes"
-        elif row['Blood Pressure Below/Above Threshold (Yes/No)'] == 'Yes':
-            alert = "Yes"
-        elif row['Glucose Levels Below/Above Threshold (Yes/No)'] == 'Yes':
-            alert = "Yes"
+    def process(self, records: list):
+        alert_count = 0
+        MAX_LLM_ALERTS = 2
 
-        conn = sqlite3.connect("elderly_care.db")
-        conn.execute("INSERT INTO health VALUES (?, ?, ?, ?, ?, ?, ?)", (
-            row['Device-ID/User-ID'], row['Timestamp'], row['Heart Rate'],
-            row['Blood Pressure'], row['Glucose Levels'],
-            row['Oxygen Saturation (SpO₂%)'], alert
-        ))
-        conn.commit()
-        conn.close()
+        for row in records:
+            user_id = row[0]
+            timestamp = row[1]
+            heart_rate = row[2]
+            heart_rate_threshold = row[3]
+            bp = row[4]
+            bp_threshold = row[5]
+            glucose = row[6]
+            glucose_threshold = row[7]
+            spo2 = row[8]
+            oxygen_threshold = row[9]
+            alert_flag = row[10]
+
+            # Process only records with an abnormal alert (alert_flag == "Yes")
+            if alert_flag.strip().lower() == "yes" and alert_count < MAX_LLM_ALERTS:
+                detailed_prompt = (
+                    f"User has the following readings:\n"
+                    f"- Heart Rate = {heart_rate} bpm and " +
+                    ("which is normal" if heart_rate_threshold.strip().lower() == "no" else "which is not normal") + ".\n"
+                    f"- Blood Pressure = {bp} and " + 
+                    ("which is normal" if bp_threshold.strip().lower() == "no" else "which is not normal") + ".\n"
+                    f"- Glucose Level = {glucose} and " + 
+                    ("which is normal" if glucose_threshold.strip().lower() == "no" else "which is not normal") + ".\n"
+                    f"- Oxygen Saturation = {spo2}. and " +
+                    ("which is normal" if oxygen_threshold.strip().lower() == "no" else "which is not normal") + ".\n"
+                    "Please assess and provide the appropriate action."
+                )
+                self.log_to_llm(detailed_prompt)
+                alert_count += 1
