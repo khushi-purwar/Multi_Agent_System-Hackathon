@@ -1,4 +1,3 @@
-# llm_queue_worker.py
 import threading
 import queue
 import subprocess
@@ -6,11 +5,10 @@ import sqlite3
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
-# Shared queue for LLM prompts
 llm_prompt_queue = queue.Queue()
 
 class LLMBackgroundWorker:
-    def __init__(self, model_name="mistral", max_workers=5):
+    def __init__(self, model_name="tinyllama", max_workers=14):
         self.model_name = model_name
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self.running = False
@@ -38,9 +36,9 @@ class LLMBackgroundWorker:
 
     def _process_item(self, item):
         try:
-            sender, message = item
+            sender, message, user_id = item
             response = self._ask_llm(sender, message)
-            self._log_to_db(sender, message, response)
+            self._log_to_db(sender, user_id, message, response)
         finally:
             # Mark the task as done only after processing is complete
             llm_prompt_queue.task_done()
@@ -65,14 +63,14 @@ class LLMBackgroundWorker:
         except Exception as e:
             return f"LLM Error: {e}"
 
-    def _log_to_db(self, sender, message, response):
+    def _log_to_db(self, sender, user_id, message, response):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         try:
             conn = sqlite3.connect("elderly_care.db")
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO agent_communications (sender, message, response, timestamp) VALUES (?, ?, ?, ?)",
-                (sender, message, response, timestamp)
+                "INSERT INTO agent_communications (sender, user_id,  message, response, timestamp) VALUES (?, ?, ?, ?, ?)",
+                (sender, user_id, message, response, timestamp)
             )
             conn.commit()
             conn.close()

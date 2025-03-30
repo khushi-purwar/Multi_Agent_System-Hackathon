@@ -5,7 +5,7 @@ from .base_agent import BaseAgent
 class HealthAgent(BaseAgent):
     def process(self, records: list):
         alert_count = 0
-        MAX_LLM_ALERTS = 2
+        MAX_LLM_ALERTS = 10
 
         for row in records:
             user_id = row[0]
@@ -32,7 +32,7 @@ class HealthAgent(BaseAgent):
                     ("which is normal" if glucose_threshold.strip().lower() == "no" else "which is not normal") + ".\n"
                     f"- Oxygen Saturation = {spo2}. and " +
                     ("which is normal" if oxygen_threshold.strip().lower() == "no" else "which is not normal") + ".\n"
-                    "Please assess and provide the appropriate action."
+                    "Please provide the appropriate action in 1 or 2 lines"
                 )
-                self.log_to_llm(detailed_prompt)
+                self.log_to_llm(detailed_prompt, user_id)
                 alert_count += 1

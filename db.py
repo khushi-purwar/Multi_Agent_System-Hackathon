@@ -65,8 +65,7 @@ def init_db():
                         acknowledged TEXT)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS agent_communications (
                         sender TEXT, 
-                        user_id TEXT, 
-                        source_timestamp TEXT, 
+                        user_id TEXT,  
                         message TEXT, 
                         response TEXT, 
                         timestamp TEXT)''')
@@ -88,8 +87,6 @@ def insert_data(table_name, records):
         cursor.executemany("INSERT INTO safety VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", records)
     elif table_name == "reminders":
         cursor.executemany("INSERT INTO reminders VALUES (?, ?, ?, ?, ?, ?)", records)
-    elif table_name == "agent_communications":
-        cursor.executemany("INSERT INTO agent_communications VALUES (?, ?, ?, ?, ?, ?)", records)
     else:
         print(f"Unknown table: {table_name}")
         conn.close()
