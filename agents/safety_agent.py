@@ -8,7 +8,7 @@ class SafetyAgent(BaseAgent):
     def __init__(self, name="SafetyAgent", enable_llm=True):
         super().__init__(name, enable_llm)
         self.alert_count = 0
-        self.MAX_ALERTS = 10
+        self.MAX_ALERTS = 16
 
     def process(self, records: list):
         now = datetime.now()

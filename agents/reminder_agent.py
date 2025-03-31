@@ -28,7 +28,7 @@ class ReminderAgent(BaseAgent):
     def process(self, records: list):
         grace_period = timedelta(minutes=5)
         alert_count = 0
-        MAX_LLM_ALERTS = 10
+        MAX_LLM_ALERTS = 30
 
         for row in records:
             user_id, timestamp, reminder_type, scheduled_time, reminder_sent, acknowledged = row

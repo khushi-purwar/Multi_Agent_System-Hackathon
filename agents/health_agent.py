@@ -5,7 +5,7 @@ from .base_agent import BaseAgent
 class HealthAgent(BaseAgent):
     def process(self, records: list):
         alert_count = 0
-        MAX_LLM_ALERTS = 10
+        MAX_LLM_ALERTS = 20
 
         for row in records:
             user_id = row[0]
